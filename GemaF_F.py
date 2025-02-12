@@ -2,11 +2,9 @@
 # Interface GEMA_F - CELL Analysis in Bright and Fluorescent Fields
 import cv2
 import time
-
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from skimage import morphology, exposure
+from skimage import morphology
 from skimage.filters import threshold_otsu
 from skimage.filters import threshold_multiotsu
 

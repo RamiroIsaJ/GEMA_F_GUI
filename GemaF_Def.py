@@ -1,6 +1,5 @@
 # Ramiro Isa-Jara, ramiro.isaj@gmail.com
 # Interface GEMA_F - CELL Analysis in Bright and Fluorescent Fields
-import numpy as np
 import cv2
 import glob
 import os

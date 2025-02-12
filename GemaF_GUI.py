@@ -9,7 +9,6 @@ import GemaF_B as Gb
 import GemaF_F as Gf
 from datetime import datetime
 import time
-import matplotlib.pyplot as plt
 
 # -------------------------------
 # Adjust size screen
