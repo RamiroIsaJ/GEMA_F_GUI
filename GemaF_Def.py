@@ -10,11 +10,11 @@ def load_image_i(orig, i, type_, filenames, id_sys):
     symbol = '\\' if id_sys == 0 else '/'
     if len(filenames) == 0:
         filenames = [img for img in glob.glob(orig + '*' + type_)]
-        filenames.sort()
+        # filenames.sort()
     if i < len(filenames):
         name = filenames[i]
         parts = name.split(symbol)
-        name_exp, name_ima = parts[len(parts)-2], parts[len(parts)-1]
+        name_exp, name_ima = parts[len(parts)-2], parts[len(parts)-1].split('.ti')[0]
         # read image
         image_ = cv2.imread(name)
     else:
@@ -44,8 +44,7 @@ def save_image_color(ima_out_, path_des_, name_ima):
 
 
 def save_image_binary(ima_bin_, path_des_, name_ima):
-    name_cc = name_ima.split('.')[0]
-    root_ima = os.path.join(path_des_, name_cc+'.jpg')
+    root_ima = os.path.join(path_des_, name_ima+'.jpg')
     plt.imsave(str(root_ima), ima_bin_, cmap='gray')
     print('-------------------------------------------')
     print('..... Binary image saved successfully .....')

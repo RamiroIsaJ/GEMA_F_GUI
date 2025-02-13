@@ -269,7 +269,7 @@ while True:
                 Gd.save_image_binary(binary_out, path_des, filename)
 
             i += 1
-            time.sleep(0.50)
+            time.sleep(0.10)
 
 print('CLOSE WINDOW')
 window.close()
