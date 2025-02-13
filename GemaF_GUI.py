@@ -20,6 +20,7 @@ m1, n1 = 450, 400
 img = np.ones((m1, n1, 1), np.uint8)*255
 
 l_res = ['100x', '90x', '60x', '40x', '20x', '10x', '4x']
+l_cont = ['12.5', '48.5', '68.5']
 layout1 = [[sg.Radio('Windows', "RADIO1", enable_events=True, default=True, key='_SYS_')],
            [sg.Radio('Linux', "RADIO1", enable_events=True, key='_LIN_')], [sg.Text('')]]
 
@@ -32,13 +33,14 @@ layout3 = [[sg.Text('', size=(5, 1)),
             sg.Radio('Bright field', "RADIO2", default=True, key='_BFR_', font=('Arial', 9, 'bold')),
             sg.Text('', size=(4, 1)),
            sg.Radio('Fluorescent field', "RADIO2", font=('Arial', 9, 'bold'))],
-           [sg.Text('Image resolution:', size=(13, 1)), sg.Combo(l_res, size=(5, 1), default_value='10x', key='_RES_'),
+           [sg.Text('Image resolution:', size=(12, 1)), sg.Combo(l_res, size=(5, 1), default_value='10x', key='_RES_'),
             sg.Text('', size=(1, 1)),
-            sg.Text('Conversion factor:', size=(13, 1)), sg.InputText('4', key='_CON_', size=(5, 1))],
-           [sg.Text('BF-sections:', size=(13, 1)), sg.InputText('20', key='_BFS_', size=(7, 1)),
+            sg.Text('Contrast level:', size=(10, 1)), sg.Combo(l_cont, size=(5, 1), default_value='12.5', key='_COT_'),
+            sg.Text('', size=(1, 1)),],
+           [sg.Text('BF-sections:', size=(12, 1)), sg.InputText('20', key='_BFS_', size=(7, 1)),
             sg.Text('', size=(1, 1)),
-            sg.Text('FF-sections:', size=(13, 1)), sg.InputText('16', key='_FFS_', size=(5, 1))],
-           [sg.Checkbox('Save Color Images', default=True, key='_SIC_'), sg.Text('', size=(5, 1)),
+            sg.Text('FF-sections:', size=(10, 1)), sg.InputText('16', key='_FFS_', size=(6, 1))],
+           [sg.Checkbox('Save Color Images', default=True, key='_SIC_'), sg.Text('', size=(4, 1)),
             sg.Checkbox('Save Binary Images', default=False, key='_SIB_')],]
 
 layout4 = [[sg.Text('Source : ', size=(10, 1), key='_F_', visible=True),
@@ -96,7 +98,7 @@ window['_IMA_'].update(data=Gd.bytes_(img, m1, n1))
 time_, id_image, i = 0, 0, 0
 start_f, start_b, save_color, save_bin, finish_, pause_ = False, False, True, False, False, False
 sections, name, image, ini_time, ini_time_, path_des, type_i, path_ori = None, None, None, None, None, None, None, None
-saveIm, filenames, id_sys, name_file = None, [], 0, None
+saveIm, filenames, id_sys, name_file, contrast = None, [], 0, None, 0
 results = pd.DataFrame(columns=['Image', 'Regions', 'Percentage Area', 'Image Area (um2)', 'Detected Area (um2)',
                                 'Time (sec)'])
 # ------------------------------------------------------------------------
@@ -202,6 +204,7 @@ while True:
             else:
                 start_f, start_b = True, False
                 sections = int(values['_FFS_'])
+                contrast = float(values['_COT_'])
             ini_time = datetime.now()
             conv_value = int(values['_CON_'])
         elif len(path_ori) > 1 and len(path_des) > 1 and (start_b or start_f):
@@ -261,7 +264,7 @@ while True:
             window['_MES_'].update(' ... IMAGE PROCESSING .... ')
             print('|-------------------------------------------------------|')
             print('Processing image: ... ' + str(i + 1) + ' of ' + str(total_i))
-            image_out, binary_out, results = gemaF.main(i, image_, filename, sections, results)
+            image_out, binary_out, results = gemaF.main(i, image_, filename, sections, contrast, results)
             window['_IMA_'].update(data=Gd.bytes_(image_out, m1, n1))
 
             if save_color:

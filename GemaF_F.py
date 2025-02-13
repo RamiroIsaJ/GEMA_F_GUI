@@ -16,8 +16,8 @@ class GemaFFluorescent:
         self.condition, self.control, self.factor_ = None, False, False
         self.gabor_img_, self.final_img_, self.binary_c = None, None, None
 
-    def preprocessing(self, img):
-        alpha, beta = 6.5, 12.5
+    def preprocessing(self, img, contrast):
+        alpha, beta = 6.5, contrast
         img_ = cv2.convertScaleAbs(img, alpha=alpha, beta=beta)
         image_gray_ = cv2.cvtColor(img_, cv2.COLOR_BGR2GRAY)
         clh = cv2.createCLAHE(clipLimit=5.0)
@@ -101,7 +101,8 @@ class GemaFFluorescent:
             factor = 3.4 if threshold_otsu(image_ff) <= 20 else 5.3
             factor = factor + 1.0 if threshold_otsu(image_ff) >= 28 else factor
         else:
-            factor = 1.25 if threshold_otsu(image_ff) <= 28 else 2.0
+            factor = 1.1 if threshold_otsu(image_ff) <= 30 else 2.0
+            print('sisisis')
         size_slide = 5
         for i in range(len(m_sections) - 1):
             for j in range(len(n_sections) - 1):
@@ -128,8 +129,9 @@ class GemaFFluorescent:
         return self.binary_c
 
     def gema_cells(self, image_, final_img_, sections_):
+        print(threshold_otsu(final_img_))
         if self.control is False:
-            if threshold_otsu(final_img_) <= 80:
+            if threshold_otsu(final_img_) <= 70:
                 self.factor_, self.control = True, True
         # Gabor image
         gabor_img = self.apply_gabor(final_img_, self.filters_)
@@ -138,8 +140,8 @@ class GemaFFluorescent:
         # apply morphology operations in thresh image
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
         binary_ = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=2)
-        # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-        # binary_ = cv2.morphologyEx(binary_, cv2.MORPH_CLOSE, kernel, iterations=1)
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+        binary_ = cv2.morphologyEx(binary_, cv2.MORPH_CLOSE, kernel, iterations=1)
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
         binary_ = cv2.morphologyEx(binary_, cv2.MORPH_OPEN, kernel, iterations=2)
         arr = binary_ > 0
@@ -150,9 +152,9 @@ class GemaFFluorescent:
         percent_, area_ = self.compute_percent_area(binary_n, areas)
         return image_out_, binary_n, percent_, area_, len(areas)
 
-    def main(self, i, img_, name_, sections, results):
+    def main(self, i, img_, name_, sections, contrast, results):
         tic = time.process_time()
-        final_img_ff = self.preprocessing(img_)
+        final_img_ff = self.preprocessing(img_, contrast)
         area_t_ = np.round(((final_img_ff.shape[0] / 4) * (final_img_ff.shape[1] / 4)), 2)
         # gema for cells
         image_out_ff, binary_ff, percent_ff, area_ff, regions = self.gema_cells(img_, final_img_ff, sections)

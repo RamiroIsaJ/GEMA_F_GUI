@@ -10,7 +10,7 @@ def load_image_i(orig, i, type_, filenames, id_sys):
     symbol = '\\' if id_sys == 0 else '/'
     if len(filenames) == 0:
         filenames = [img for img in glob.glob(orig + '*' + type_)]
-        # filenames.sort()
+        filenames.sort()
     if i < len(filenames):
         name = filenames[i]
         parts = name.split(symbol)
