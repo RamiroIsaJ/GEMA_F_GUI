@@ -98,11 +98,10 @@ class GemaFFluorescent:
         n_sections.append(n)
         self.binary_c = np.zeros((m, n), dtype=np.uint8)
         if self.factor_:
-            factor = 3.4 if threshold_otsu(image_ff) <= 20 else 5.3
+            factor = 2.4 if threshold_otsu(image_ff) <= 20 else 4.3
             factor = factor + 1.0 if threshold_otsu(image_ff) >= 28 else factor
         else:
             factor = 1.1 if threshold_otsu(image_ff) <= 30 else 2.0
-            print('sisisis')
         size_slide = 5
         for i in range(len(m_sections) - 1):
             for j in range(len(n_sections) - 1):
