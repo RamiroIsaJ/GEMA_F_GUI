@@ -126,7 +126,7 @@ while True:
             Gd.save_csv_file(results, path_des, 'BF')
         if start_f:
             Gd.save_csv_file(results, path_des, 'FF')
-        start_b, start_f, finish_ = False, False, False
+        start_b, start_f, finish_, i = False, False, False, 0
         results = pd.DataFrame(columns=['Image', 'Regions', 'Percentage Area', 'Image Area (um2)',
                                         'Detected Area (um2)', 'Time (sec)'])
         gemaB = Gb.GemaFBright(window)
@@ -209,6 +209,8 @@ while True:
         else:
             sg.Popup('Error', ['Information or process is incorrect'])
 
+        print(start_f)
+
     if start_b:
         filenames, image_, experiment, filename, total_i = Gd.load_image_i(path_ori, i, type_i, filenames, id_sys)
         window['_CIM_'].update(total_i)
@@ -238,7 +240,7 @@ while True:
                 Gd.save_image_binary(binary_out, path_des, filename)
 
             i += 1
-            time.sleep(0.20)
+            time.sleep(0.10)
 
     if start_f:
         filenames, image_, experiment, filename, total_i = Gd.load_image_i(path_ori, i, type_i, filenames, id_sys)

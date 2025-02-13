@@ -70,14 +70,11 @@ class GemaFFluorescent:
         return valid_contour, error_contour, np.array(area_valid), np.array(area_error),
 
     @staticmethod
-    def delete_regions(binary_, areas_error_, e_contours_):
-        # delete binary
-        if len(e_contours_) > 0:
-            contours_ = np.copy(e_contours_[0])
-            for i in range(len(areas_error_)):
-                if areas_error_[i] <= 5000:
-                    cv2.fillPoly(binary_, pts=[contours_[i]], color=(0, 0, 0))
-        return binary_
+    def delete_regions(binary_, e_contours_):
+        binary_nn = np.zeros_like(binary_)
+        for c in e_contours_:
+            cv2.fillPoly(binary_nn, pts=[c], color=(255, 255, 255))
+        return binary_nn
 
     def generate_contour(self, img, mark):
         binary = mark.copy()
@@ -87,8 +84,8 @@ class GemaFFluorescent:
         color1 = (0, 255, 0)
         # draw contours
         cv2.drawContours(ima_sel_, v_contours, -1, color1, 3)
-        binary = self.delete_regions(binary, area_error_, e_contours)
-        return ima_sel_, binary, area_contours
+        binary_nn_ = self.delete_regions(binary, v_contours)
+        return ima_sel_, binary_nn_, area_contours
 
     def image_sections_ff(self, image_ff, sections_):
         m, n = image_ff.shape
@@ -141,8 +138,8 @@ class GemaFFluorescent:
         # apply morphology operations in thresh image
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
         binary_ = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=2)
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-        binary_ = cv2.morphologyEx(binary_, cv2.MORPH_CLOSE, kernel, iterations=1)
+        # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+        # binary_ = cv2.morphologyEx(binary_, cv2.MORPH_CLOSE, kernel, iterations=1)
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
         binary_ = cv2.morphologyEx(binary_, cv2.MORPH_OPEN, kernel, iterations=2)
         arr = binary_ > 0
