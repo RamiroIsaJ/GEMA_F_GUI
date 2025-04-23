@@ -20,7 +20,7 @@ m1, n1 = 450, 400
 img = np.ones((m1, n1, 1), np.uint8)*255
 
 l_res = ['100x', '90x', '60x', '40x', '20x', '10x', '4x']
-l_cont = ['10.5', '12.5', '35.5', '48.5']
+l_cont = ['12.5', '25.0']
 layout1 = [[sg.Radio('Windows', "RADIO1", enable_events=True, default=True, key='_SYS_')],
            [sg.Radio('Linux', "RADIO1", enable_events=True, key='_LIN_')], [sg.Text('')]]
 
@@ -35,7 +35,7 @@ layout3 = [[sg.Text('', size=(5, 1)),
            sg.Radio('Fluorescent field', "RADIO2", font=('Arial', 9, 'bold'))],
            [sg.Text('Image resolution:', size=(12, 1)), sg.Combo(l_res, size=(5, 1), default_value='10x', key='_RES_'),
             sg.Text('', size=(1, 1)),
-            sg.Text('Contrast level:', size=(10, 1)), sg.Combo(l_cont, size=(5, 1), default_value='10.5', key='_COT_'),
+            sg.Text('Contrast level:', size=(10, 1)), sg.Combo(l_cont, size=(5, 1), default_value='12.5', key='_COT_'),
             sg.Text('', size=(1, 1)),],
            [sg.Text('BF-sections:', size=(12, 1)), sg.InputText('20', key='_BFS_', size=(7, 1)),
             sg.Text('', size=(1, 1)),

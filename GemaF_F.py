@@ -2,6 +2,8 @@
 # Interface GEMA_F - CELL Analysis in Bright and Fluorescent Fields
 import cv2
 import time
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from skimage import morphology
@@ -13,12 +15,12 @@ class GemaFFluorescent:
     def __init__(self, window):
         self.window = window
         self.filters_ = []
-        self.condition, self.control, self.factor_ = None, False, False
+        self.condition, self.control, self.factor_, self.beta = None, False, False, 0
         self.gabor_img_, self.final_img_, self.binary_c = None, None, None
 
     def preprocessing(self, img, contrast):
-        alpha, beta = 6.5, contrast
-        img_ = cv2.convertScaleAbs(img, alpha=alpha, beta=beta)
+        alpha, self.beta = 6.5, contrast
+        img_ = cv2.convertScaleAbs(img, alpha=alpha, beta=self.beta)
         image_gray_ = cv2.cvtColor(img_, cv2.COLOR_BGR2GRAY)
         clh = cv2.createCLAHE(clipLimit=5.0)
         image_gray_ = clh.apply(image_gray_)
@@ -97,11 +99,14 @@ class GemaFFluorescent:
         m_sections.append(m)
         n_sections.append(n)
         self.binary_c = np.zeros((m, n), dtype=np.uint8)
-        if self.factor_:
-            factor = 2.4 if threshold_otsu(image_ff) <= 20 else 4.3
-            factor = factor + 1.0 if threshold_otsu(image_ff) >= 28 else factor
+        if self.beta > 15:
+            self.binary_c = np.array((image_ff > threshold_otsu(image_ff) - 3)).astype(np.uint8)
+            factor = 2.3 if threshold_otsu(image_ff) <= 20 else 2.7
         else:
-            factor = 1.1 if threshold_otsu(image_ff) <= 30 else 2.0
+            print(f'---{threshold_otsu(image_ff)}')
+            factor = 2.1 if threshold_otsu(image_ff) < 18 else 2.1
+
+        factor = factor + 1.2 if threshold_otsu(image_ff) >= 28 else factor
         size_slide = 5
         for i in range(len(m_sections) - 1):
             for j in range(len(n_sections) - 1):
@@ -121,10 +126,13 @@ class GemaFFluorescent:
                 roi_image = np.zeros((int(m_s), int(n_s)), dtype=np.uint8)
                 roi_image[:, :] = image_ff[int(m_window_i):int(m_window_e), int(n_window_i):int(n_window_e)]
                 thresholds = np.array(threshold_multiotsu(roi_image))
-                thresholds = thresholds + factor if thresholds[1] - thresholds[0] < 15 else thresholds + (factor/2)
+                thresholds = thresholds + factor if thresholds[1] - thresholds[0] < 14 else thresholds + (factor/2)
                 binary_ = np.digitize(roi_image, bins=thresholds)
                 binary_ = binary_.astype(np.uint8)
                 self.binary_c[int(m_window_i):int(m_window_e), int(n_window_i):int(n_window_e)] = binary_[:, :]
+        plt.figure()
+        plt.imshow(image_ff)
+
         return self.binary_c
 
     def gema_cells(self, image_, final_img_, sections_):
@@ -148,6 +156,9 @@ class GemaFFluorescent:
         binary_ = morphology.remove_small_holes(binary_.astype(np.bool_), area_threshold=3000, connectivity=1)
         binary_ = binary_.astype(np.uint8)
         image_out_, binary_n, areas = self.generate_contour(image_, binary_)
+        plt.figure()
+        plt.imshow(binary_n, cmap='gray')
+        plt.show()
         percent_, area_ = self.compute_percent_area(binary_n, areas)
         return image_out_, binary_n, percent_, area_, len(areas)
 
