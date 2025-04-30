@@ -39,7 +39,7 @@ layout3 = [[sg.Text('', size=(5, 1)),
             sg.Text('', size=(1, 1)),],
            [sg.Text('BF-sections:', size=(12, 1)), sg.InputText('20', key='_BFS_', size=(7, 1)),
             sg.Text('', size=(1, 1)),
-            sg.Text('FF-sections:', size=(10, 1)), sg.InputText('16', key='_FFS_', size=(6, 1))],
+            sg.Text('FF-sections:', size=(10, 1)), sg.InputText('20', key='_FFS_', size=(6, 1))],
            [sg.Checkbox('Save Color Images', default=True, key='_SIC_'), sg.Text('', size=(4, 1)),
             sg.Checkbox('Save Binary Images', default=False, key='_SIB_')],]
 
