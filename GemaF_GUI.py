@@ -40,6 +40,8 @@ layout3 = [[sg.Text('', size=(5, 1)),
            [sg.Text('BF-sections:', size=(12, 1)), sg.InputText('20', key='_BFS_', size=(7, 1)),
             sg.Text('', size=(1, 1)),
             sg.Text('FF-sections:', size=(10, 1)), sg.InputText('20', key='_FFS_', size=(6, 1))],
+           [sg.Text('', size=(22, 1)), sg.Text('ThreshF:', size=(6, 1)),
+            sg.Slider(range=(2.1, 3.5), size=(9, 20), orientation='h', key='_THF_', resolution=0.1, default_value=2.1)],
            [sg.Checkbox('Save Color Images', default=True, key='_SIC_'), sg.Text('', size=(4, 1)),
             sg.Checkbox('Save Binary Images', default=False, key='_SIB_')],]
 
@@ -98,7 +100,7 @@ window['_IMA_'].update(data=Gd.bytes_(img, m1, n1))
 time_, id_image, i = 0, 0, 0
 start_f, start_b, save_color, save_bin, finish_, pause_ = False, False, True, False, False, False
 sections, name, image, ini_time, ini_time_, path_des, type_i, path_ori = None, None, None, None, None, None, None, None
-saveIm, filenames, id_sys, name_file, contrast = None, [], 0, None, 0
+saveIm, filenames, id_sys, name_file, contrast, factor_th = None, [], 0, None, 0, 2.1
 results = pd.DataFrame(columns=['Image', 'Regions', 'Percentage Area', 'Image Area (um2)', 'Detected Area (um2)',
                                 'Time (sec)'])
 # ------------------------------------------------------------------------
@@ -205,6 +207,7 @@ while True:
                 start_f, start_b = True, False
                 sections = int(values['_FFS_'])
                 contrast = float(values['_COT_'])
+                factor_th = float(values['_THF_'])
             ini_time = datetime.now()
         elif len(path_ori) > 1 and len(path_des) > 1 and (start_b or start_f):
             sg.Popup('Warning', ['Analysis is running...'])
@@ -263,7 +266,7 @@ while True:
             window['_MES_'].update(' ... IMAGE PROCESSING .... ')
             print('|-------------------------------------------------------|')
             print('Processing image: ... ' + str(i + 1) + ' of ' + str(total_i))
-            image_out, binary_out, results = gemaF.main(i, image_, filename, sections, contrast, results)
+            image_out, binary_out, results = gemaF.main(i, image_, filename, sections, contrast, factor_th, results)
             window['_IMA_'].update(data=Gd.bytes_(image_out, m1, n1))
 
             if save_color:

@@ -2,7 +2,6 @@
 # Interface GEMA_F - CELL Analysis in Bright and Fluorescent Fields
 import cv2
 import time
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -89,7 +88,7 @@ class GemaFFluorescent:
         binary_nn_ = self.delete_regions(binary, v_contours)
         return ima_sel_, binary_nn_, area_contours
 
-    def image_sections_ff(self, image_ff, sections_):
+    def image_sections_ff(self, image_ff, sections_, factor):
         m, n = image_ff.shape
         m_, n_ = np.round(m / sections_), np.round(n / sections_)
         m_sections, n_sections = [0], [0]
@@ -99,11 +98,10 @@ class GemaFFluorescent:
         m_sections.append(m)
         n_sections.append(n)
         self.binary_c = np.zeros((m, n), dtype=np.uint8)
-        factor = 2.1
         if self.beta > 15:
             self.binary_c = np.array((image_ff > threshold_otsu(image_ff) - 4)).astype(np.uint8)
-            # factor = factor + 1.2 if threshold_otsu(image_ff) >= 25 else factor
         else:
+            factor += 0.5
             factor = factor + 3.5 if threshold_otsu(image_ff) >= 25 else factor
         size_slide = 5
         for i in range(len(m_sections) - 1):
@@ -131,11 +129,11 @@ class GemaFFluorescent:
 
         return self.binary_c
 
-    def gema_cells(self, image_, final_img_, sections_):
+    def gema_cells(self, image_, final_img_, sections_, factor):
         # Gabor image
         gabor_img = self.apply_gabor(final_img_, self.filters_)
         # evaluate area
-        thresh = self.image_sections_ff(gabor_img, sections_)
+        thresh = self.image_sections_ff(gabor_img, sections_, factor)
         # apply morphology operations in thresh image
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
         binary_ = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=2)
@@ -151,12 +149,12 @@ class GemaFFluorescent:
         percent_, area_ = self.compute_percent_area(binary_n, areas)
         return image_out_, binary_n, percent_, area_, len(areas)
 
-    def main(self, i, img_, name_, sections, contrast, results):
+    def main(self, i, img_, name_, sections, contrast, factor, results):
         tic = time.process_time()
         final_img_ff = self.preprocessing(img_, contrast)
         area_t_ = np.round(((final_img_ff.shape[0] / 4) * (final_img_ff.shape[1] / 4)), 2)
         # gema for cells
-        image_out_ff, binary_ff, percent_ff, area_ff, regions = self.gema_cells(img_, final_img_ff, sections)
+        image_out_ff, binary_ff, percent_ff, area_ff, regions = self.gema_cells(img_, final_img_ff, sections, factor)
         print("")
         table = [['Image FF name       : ', name_],
                  ['Percentage FF value : ', str(percent_ff)]]
